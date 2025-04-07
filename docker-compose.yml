@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    extra_hosts:
+      - "${NGINX_HOST}:${NGINX_IP}"
+    depends_on:
+      # - gpt_chat
+      # - e-nurse_chat
+      - php
+    networks:
+      - shared_net
+    restart: always
+
+  php:
+    build: ./php
+    container_name: php_server
+    ports:
+      - "8080:80"
+    volumes:
+      - ./apache:/var/www/html
+      - ./config.json:/var/www/html/config.json 
+    networks:
+      - shared_net
+    restart: always
+
+  mysql:
+    image: mysql:8
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    networks:
+      - shared_net
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "8082:80"
+    networks:
+      - shared_net
+
+volumes:
+  mysql_data:
+
+networks:
+  shared_net:
+    external: true

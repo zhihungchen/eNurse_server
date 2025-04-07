@@ -1,0 +1,31 @@
+# Ignore settings
+**/config.json
+*.env
+
+# Ignore database files
+db/
+*.db
+*.sql
+*.sqlite3
+
+# Ignore temporary and compiled files
+*.log
+*.tmp
+*.swp
+*.pyc
+*.class
+__pycache__/
+*.out
+*.o
+*.so
+*.a
+
+# Ignore editor settings
+.vscode/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Just in case: ignore the Git metadata directory (should not be necessary)
+.git/
