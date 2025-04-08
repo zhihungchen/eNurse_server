@@ -1,0 +1,314 @@
+{
+  "beds": [
+    {
+      "bed_name": "01-0",
+      "room_number": "01",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "02-0",
+      "room_number": "02",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "03-0",
+      "room_number": "03",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "05-0",
+      "room_number": "05",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "6-1",
+      "room_number": "06",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "6-2",
+      "room_number": "06",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "6-3",
+      "room_number": "06",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "6-5",
+      "room_number": "06",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "7-1",
+      "room_number": "07",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "7-2",
+      "room_number": "07",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "7-3",
+      "room_number": "07",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "7-5",
+      "room_number": "07",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "8-1",
+      "room_number": "08",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "8-2",
+      "room_number": "08",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "8-3",
+      "room_number": "08",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "8-5",
+      "room_number": "08",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "9-1",
+      "room_number": "09",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "9-2",
+      "room_number": "09",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "9-3",
+      "room_number": "09",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "9-5",
+      "room_number": "09",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "10-1",
+      "room_number": "10",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "10-2",
+      "room_number": "10",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "10-3",
+      "room_number": "10",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "10-5",
+      "room_number": "10",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "11-1",
+      "room_number": "11",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "11-2",
+      "room_number": "11",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "12-1",
+      "room_number": "12",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "12-2",
+      "room_number": "12",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "13-0",
+      "room_number": "13",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "15-0",
+      "room_number": "15",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "16-0",
+      "room_number": "16",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "17-0",
+      "room_number": "17",
+      "floor": "5A"
+    },
+    {
+      "bed_name": "01-0",
+      "room_number": "01",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "02-0",
+      "room_number": "02",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "03-0",
+      "room_number": "03",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "05-0",
+      "room_number": "05",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "6-1",
+      "room_number": "06",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "6-2",
+      "room_number": "06",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "6-3",
+      "room_number": "06",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "6-5",
+      "room_number": "06",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "7-1",
+      "room_number": "07",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "7-2",
+      "room_number": "07",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "7-3",
+      "room_number": "07",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "7-5",
+      "room_number": "07",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "8-1",
+      "room_number": "08",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "8-2",
+      "room_number": "08",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "8-3",
+      "room_number": "08",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "8-5",
+      "room_number": "08",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "9-1",
+      "room_number": "09",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "9-2",
+      "room_number": "09",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "9-3",
+      "room_number": "09",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "9-5",
+      "room_number": "09",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "10-0",
+      "room_number": "10",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "11-0",
+      "room_number": "11",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "12-1",
+      "room_number": "12",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "12-2",
+      "room_number": "12",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "13-1",
+      "room_number": "13",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "13-2",
+      "room_number": "13",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "15-0",
+      "room_number": "15",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "16-0",
+      "room_number": "16",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "17-0",
+      "room_number": "17",
+      "floor": "5B"
+    },
+    {
+      "bed_name": "18-0",
+      "room_number": "18",
+      "floor": "5B"
+    }
+  ]
+}

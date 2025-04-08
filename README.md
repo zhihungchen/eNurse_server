@@ -38,9 +38,6 @@ To ensure secure and flexible deployment, this project requires a custom config.
 }
 
   
-
-```
-
 After preparing your config.json, run the following script to generate a .env file for Docker Compose:
 
 ```bash
