@@ -50,6 +50,26 @@ if ($action === "create_bed") {
     exit();
 }
 
+// Delete all beds (POST request)
+if ($action === "delete_all_beds") {
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    if (!isset($data["username"], $data["password"]) ||
+        $data["username"] !== $username || $data["password"] !== $password) {
+        echo json_encode(["error" => "Unauthorized"]);
+        exit();
+    }
+
+    $sql = "DELETE FROM beds";
+    if ($conn->query($sql)) {
+        echo json_encode(["message" => "All beds deleted successfully"]);
+    } else {
+        echo json_encode(["error" => "Failed to delete beds"]);
+    }
+    exit();
+}
+
+
 // Fetch all beds (GET request)
 if ($action === "get_beds") {
     $result = $conn->query("SELECT id, bed_name, room_number, floor FROM beds");
@@ -57,60 +77,79 @@ if ($action === "get_beds") {
     exit();
 }
 
-// Fetch all tasks
-if ($action === "get_tasks") {
-    $result = $conn->query("SELECT id, bed_id, task_name, task_type, timestamp, details, status FROM tasks ORDER BY timestamp DESC");
-    echo json_encode(["tasks" => $result->fetch_all(MYSQLI_ASSOC)]);
+// Update tasks for a specific bed (POST request)
+
+function check_user_permission($username, $password) {
+    // TODO: replace with actual user table check if needed
+    return $username === "root" && $password === "root";
+}
+
+if ($action === "update_tasks") {
+    $input = json_decode(file_get_contents("php://input"), true);
+
+    $username     = $input["username"] ?? '';
+    $password     = $input["password"] ?? '';
+    $bed_name     = $input["bed_name"] ?? null;
+    $room_number  = $input["room_number"] ?? null;
+    $floor        = $input["floor"] ?? null;
+    $tasks        = $input["tasks"] ?? null;
+
+    if (!check_user_permission($username, $password)) {
+        echo json_encode(["error" => "Unauthorized"]);
+        exit;
+    }
+
+    if (!$bed_name || !$room_number || !$floor || !$tasks) {
+        echo json_encode(["error" => "Missing parameters"]);
+        exit;
+    }
+
+    $tasks_json = json_encode($tasks);
+
+    $stmt = $conn->prepare("
+        UPDATE beds
+        SET tasks = ?
+        WHERE bed_name = ? AND room_number = ? AND floor = ?
+    ");
+    $stmt->bind_param("ssss", $tasks_json, $bed_name, $room_number, $floor);
+
+    if ($stmt->execute() && $stmt->affected_rows > 0) {
+        echo json_encode(["success" => true]);
+    } else {
+        echo json_encode(["error" => "Update failed", "details" => $stmt->error]);
+    }
+
+    $stmt->close();
+    $conn->close();
     exit();
 }
 
-// Create a new task (POST request)
-if ($action === "create_task") {
-    if (!isset($data["bed_id"], $data["task_name"], $data["task_type"], $data["task_details"])) {
-        echo json_encode(["error" => "Missing parameters for task creation"]);
+// delete all tasks 
+if ($action === "delete_all_tasks") {
+    $input = json_decode(file_get_contents("php://input"), true);
+
+    $username = $input["username"] ?? '';
+    $password = $input["password"] ?? '';
+
+    if (!check_user_permission($username, $password, $conn)) {
+        echo json_encode(["error" => "Unauthorized"]);
         exit();
     }
 
-    $stmt = $conn->prepare("INSERT INTO tasks (bed_id, task_name, task_type, timestamp, details, status) VALUES (?, ?, ?, NOW(), ?, 'pending')");
-    $stmt->bind_param("isss", $data["bed_id"], $data["task_name"], $data["task_type"], $data["task_details"]);
+    $sql = "UPDATE beds SET tasks = NULL";
 
-    echo json_encode($stmt->execute() ? 
-        ["message" => "Task created successfully", "task_id" => $stmt->insert_id] : 
-        ["error" => "Failed to create task"]);
-    exit();
-}
-
-// Update task status (POST request)
-if ($action === "update_task") {
-    if (!isset($data["task_id"], $data["new_status"])) {
-        echo json_encode(["error" => "Missing parameters for task update"]);
-        exit();
+    if ($conn->query($sql)) {
+        echo json_encode(["message" => "All bed tasks cleared"]);
+    } else {
+        echo json_encode(["error" => "Failed to clear tasks", "details" => $conn->error]);
     }
 
-    $stmt = $conn->prepare("UPDATE tasks SET status = ? WHERE id = ?");
-    $stmt->bind_param("si", $data["new_status"], $data["task_id"]);
-
-    echo json_encode($stmt->execute() ? 
-        ["message" => "Task updated successfully"] : 
-        ["error" => "Failed to update task"]);
+    $conn->close();
     exit();
 }
 
-// Delete a task (POST request)
-if ($action === "delete_task") {
-    if (!isset($data["task_id"])) {
-        echo json_encode(["error" => "Missing task_id for deletion"]);
-        exit();
-    }
 
-    $stmt = $conn->prepare("DELETE FROM tasks WHERE id = ?");
-    $stmt->bind_param("i", $data["task_id"]);
 
-    echo json_encode($stmt->execute() ? 
-        ["message" => "Task deleted successfully"] : 
-        ["error" => "Failed to delete task"]);
-    exit();
-}
 
 // Invalid action
 echo json_encode(["error" => "Invalid action"]);

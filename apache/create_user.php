@@ -87,8 +87,9 @@ function show_user_creation_form() {
 
         <label>Role:</label>
         <select name="role">
-            <option value="nurse_lead">Nurse Lead</option>
-            <option value="developer">Developer</option>
+            <option value="nurse">nurse</option>
+            <option value="dev">developer</option>
+            <option value="admin">admin</option>
         </select><br><br>
 
         <button type="submit">Create User</button>
