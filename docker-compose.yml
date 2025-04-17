@@ -25,7 +25,7 @@ services:
       - "8080:80"
     volumes:
       - ./apache:/var/www/html
-      - ./config.json:/var/www/html/config.json 
+      - ./config.json:/var/www/html/config.json
     networks:
       - shared_net
     restart: always
@@ -53,7 +53,7 @@ services:
     depends_on:
       - mysql
     environment:
-      PMA_HOST: mysql
+      PMA_HOST: mysql # indicate the mysql service name (for PHPMyAdmin to connect)
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "8082:80"
@@ -62,6 +62,7 @@ services:
 
 volumes:
   mysql_data:
+
 
 networks:
   shared_net:
