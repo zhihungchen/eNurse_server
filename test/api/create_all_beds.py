@@ -25,7 +25,7 @@ for floor, bed_list in floors.items():
             "floor": floor
         })
 
-with open("data/beds.json", "w", encoding="utf-8") as f:
+with open("../data/beds.json", "w", encoding="utf-8") as f:
     json.dump(bed_data, f, indent=2, ensure_ascii=False)
 
 print("beds.json has been created successfully.")

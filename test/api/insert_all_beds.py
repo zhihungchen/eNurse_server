@@ -2,7 +2,7 @@
 # Insert_all_beds.py
 import json
 import requests
-import config
+from config import config 
 
 API_URL = f"{config.BASE_URL}/task_api.php?action={config.CREATE_BED}"
 

@@ -99,7 +99,7 @@ if ($action === "update_tasks") {
         exit;
     }
 
-    if (!$bed_name || !$room_number || !$floor || !$tasks) {
+    if (!$bed_name || !$room_number || !$floor) {
         echo json_encode(["error" => "Missing parameters"]);
         exit;
     }

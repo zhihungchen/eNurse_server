@@ -1,5 +1,5 @@
 import requests
-import config
+from config import config 
 
 API_URL = f"{config.BASE_URL}/task_api.php?action={config.DELETE_ALL_BEDS}"
 

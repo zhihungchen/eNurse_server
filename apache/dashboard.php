@@ -6,39 +6,74 @@ if (!isset($_SESSION["user_id"])) {
     header("Location: login.html");
     exit;
 }
-
-$username = $_SESSION["username"];
-$role = $_SESSION["role"];
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Task Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 15px 20px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333333;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0;
+            background-color: #28a745;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .button:hover {
+            background-color: #218838;
+        }
+
+        .logout {
+            background-color: #dc3545;
+        }
+
+        .logout:hover {
+            background-color: #c82333;
+        }
+    </style>
 </head>
+
 <body>
-    <h2>Welcome, <?php echo htmlspecialchars($username); ?>!</h2>
-    <p>Your role: <strong><?php echo htmlspecialchars($role); ?></strong></p>
+    <div class="header">
+        <h1>Welcome to the Dashboard</h1>
+    </div>
+    <div class="content">
+        <h2>Hello, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
+        <p>Your role: <?php echo htmlspecialchars($_SESSION['role']); ?></p>
 
-    <?php if ($role === 'nurse_lead'): ?>
-        <h3>📝 Nurse Lead Task Panel (Demo)</h3>
-        <ul>
-            <li><button>Assign New Task</button></li>
-            <li><button>View Task History</button></li>
-            <li><button>Robot Status</button></li>
-        </ul>
-    <?php elseif ($role === 'developer'): ?>
-        <h3>🛠️ Developer Debug Panel (Demo)</h3>
-        <ul>
-            <li><button>System Logs</button></li>
-            <li><button>Test API Endpoint</button></li>
-            <li><button>Robot Simulator</button></li>
-        </ul>
-    <?php else: ?>
-        <p>⚠️ Unknown role. Limited access.</p>
-    <?php endif; ?>
-
-    <p><a href="logout.php">Logout</a></p>
+        <a href="manage_tasks.php" class="button">Manage Tasks</a>
+        <a href="logout.php" class="button logout">Logout</a>
+    </div>
 </body>
+
 </html>

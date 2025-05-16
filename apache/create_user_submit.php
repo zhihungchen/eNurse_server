@@ -15,44 +15,122 @@
  */
 session_start();
 
-// Check admin session
+// Check if admin is verified
 if (!isset($_SESSION["admin_verified"]) || $_SESSION["admin_verified"] !== true) {
-    die("❌ Unauthorized access.");
+    die("❌ Unauthorized access. Please log in as an admin.");
 }
 
-// Load config
+// Load database configuration
 $configFile = __DIR__ . "/config.json";
 $config = json_decode(file_get_contents($configFile), true);
 $db = $config["database"];
 
-// Get admin login from session
-$admin_user = $_SESSION["admin_user"];
-$admin_pass = $_SESSION["admin_pass"];
-
-// Connect to DB
-$conn = new mysqli($db["host"], $admin_user, $admin_pass, $db["dbname"]);
+// Connect to the database
+$conn = new mysqli($db["host"], $_SESSION["admin_user"], $_SESSION["admin_pass"], $db["dbname"]);
 if ($conn->connect_error) {
-    die("❌ DB connection failed.");
+    die("❌ Database connection failed: " . $conn->connect_error);
 }
 
-// Get new user data
+// Get form data
 $username = $_POST["username"] ?? null;
 $password = $_POST["password"] ?? null;
 $role     = $_POST["role"] ?? null;
 $name     = $_POST["name"] ?? null;
 
+// Validate form data
 if (!$username || !$password || !$role || !$name) {
-    die("❌ Missing fields.");
+    die("❌ Missing required fields. Please fill out all fields.");
 }
 
+// Validate role
+$allowed_roles = ["admin", "user", "viewer"];
+if (!in_array($role, $allowed_roles)) {
+    die("❌ Invalid role. Allowed roles are: " . implode(", ", $allowed_roles));
+}
+
+// Check if username already exists
+$stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$stmt->bind_result($count);
+$stmt->fetch();
+$stmt->close();
+
+if ($count > 0) {
+    die("❌ Username '$username' already exists. Please choose a different username.");
+}
+
+// Hash the password
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
+// Insert the new user into the database
 $stmt = $conn->prepare("INSERT INTO users (username, password_hash, role, name) VALUES (?, ?, ?, ?)");
 $stmt->bind_param("ssss", $username, $password_hash, $role, $name);
 
 if ($stmt->execute()) {
-    echo "✅ User '$username' created successfully.";
+    echo <<<HTML
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User Created</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f9;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+
+            .message-container {
+                background-color: #ffffff;
+                padding: 20px 30px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                max-width: 400px;
+                width: 100%;
+            }
+
+            h1 {
+                color: #28a745;
+                margin-bottom: 20px;
+            }
+
+            p {
+                color: #555555;
+                margin-bottom: 20px;
+            }
+
+            a {
+                color: #007bff;
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="message-container">
+            <h1>✅ User Created</h1>
+            <p>User '<strong>$username</strong>' has been created successfully.</p>
+            <p><a href="create_user.php">Create another user</a> or <a href="login.html">Go to Login</a>.</p>
+        </div>
+    </body>
+    </html>
+HTML;
 } else {
     echo "❌ Failed to create user: " . $stmt->error;
 }
+
+$stmt->close();
+$conn->close();
 ?>

@@ -7,7 +7,7 @@
  * Usage:
  * 1. Admin must authenticate using MySQL root credentials (same as phpMyAdmin).
  * 2. After successful login, a form appears to create a new user.
- * 3. Form supports role assignment (e.g. 'nurse_lead', 'developer').
+ * 3. Form supports role assignment (e.g. 'admin', 'user', 'viewer').
  * 
  * Notes:
  * - This file is for internal use only. Do NOT expose it to public access.
@@ -24,8 +24,8 @@ if (isset($_SESSION["admin_verified"]) && $_SESSION["admin_verified"] === true) 
 
 // Admin login form
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["db_user"])) {
-    $input_user = $_POST["db_user"];
-    $input_pass = $_POST["db_pass"];
+    $input_user = htmlspecialchars($_POST["db_user"]);
+    $input_pass = htmlspecialchars($_POST["db_pass"]);
 
     // Load DB config to verify database name & host
     $configFile = __DIR__ . "/config.json";
@@ -36,8 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["db_user"])) {
     $conn = @new mysqli($db["host"], $input_user, $input_pass, $db["dbname"]);
 
     if ($conn->connect_error) {
-        echo "<p style='color:red;'>❌ Access denied: Invalid MySQL credentials.</p>";
-        show_admin_login_form();
+        header("Location: create_user.php?error=1");
         exit;
     }
 
@@ -58,42 +57,231 @@ exit;
 // ---------------------- FORM SECTIONS ----------------------
 
 function show_admin_login_form() {
+    $errorMsg = '';
+    if (isset($_GET['error']) && $_GET['error'] == 1) {
+        $errorMsg = '<p class="error">Invalid MySQL credentials. Please try again.</p>';
+    }
+
     echo <<<HTML
-    <h2>Admin Login (MySQL credentials)</h2>
-    <form method="POST">
-        <label>MySQL Username:</label>
-        <input type="text" name="db_user" required><br>
+    <!DOCTYPE html>
+    <html lang="en">
 
-        <label>MySQL Password:</label>
-        <input type="password" name="db_pass" required><br><br>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Login</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f9;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
 
-        <button type="submit">Verify</button>
-    </form>
+            .form-container {
+                background-color: #ffffff;
+                padding: 20px 30px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 400px;
+                text-align: center;
+            }
+
+            h1 {
+                margin-bottom: 20px;
+                color: #333333;
+            }
+
+            label {
+                display: block;
+                text-align: left;
+                margin-bottom: 5px;
+                font-weight: bold;
+                color: #555555;
+            }
+
+            input {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 15px;
+                border: 1px solid #cccccc;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+
+            button {
+                width: 100%;
+                padding: 10px;
+                background-color: #007bff;
+                color: #ffffff;
+                border: none;
+                border-radius: 4px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+            p {
+                margin-top: 15px;
+                font-size: 14px;
+                color: #555555;
+            }
+
+            p.error {
+                color: #ff4d4d;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="form-container">
+            <h1>Admin Login</h1>
+            <form method="POST">
+                <label for="db_user">MySQL Username:</label>
+                <input type="text" id="db_user" name="db_user" placeholder="Enter MySQL username" required>
+
+                <label for="db_pass">MySQL Password:</label>
+                <input type="password" id="db_pass" name="db_pass" placeholder="Enter MySQL password" required>
+
+                <button type="submit">Verify</button>
+            </form>
+
+            $errorMsg
+        </div>
+    </body>
+
+    </html>
 HTML;
 }
 
+
 function show_user_creation_form() {
     echo <<<HTML
-    <h2>Create New User</h2>
-    <form method="POST" action="create_user_submit.php">
-        <label>Username:</label>
-        <input type="text" name="username" required><br>
+    <!DOCTYPE html>
+    <html lang="en">
 
-        <label>Password:</label>
-        <input type="password" name="password" required><br>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Create User</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f9;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
 
-        <label>Full Name:</label>
-        <input type="text" name="name" required><br>
+            .form-container {
+                background-color: #ffffff;
+                padding: 20px 30px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 400px;
+                text-align: center;
+            }
 
-        <label>Role:</label>
-        <select name="role">
-            <option value="nurse">nurse</option>
-            <option value="dev">developer</option>
-            <option value="admin">admin</option>
-        </select><br><br>
+            h1 {
+                margin-bottom: 20px;
+                color: #333333;
+            }
 
-        <button type="submit">Create User</button>
-    </form>
+            label {
+                display: block;
+                text-align: left;
+                margin-bottom: 5px;
+                font-weight: bold;
+                color: #555555;
+            }
+
+            input, select {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 15px;
+                border: 1px solid #cccccc;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+
+            button {
+                width: 100%;
+                padding: 10px;
+                background-color: #28a745;
+                color: #ffffff;
+                border: none;
+                border-radius: 4px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background-color: #218838;
+            }
+
+            p {
+                margin-top: 15px;
+                font-size: 14px;
+                color: #555555;
+            }
+
+            p.error {
+                color: #ff4d4d;
+                font-weight: bold;
+            }
+
+            a {
+                color: #007bff;
+                text-decoration: none;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="form-container">
+            <h1>Create User</h1>
+            <form action="create_user_submit.php" method="POST">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" placeholder="Enter a username" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter a password" required>
+
+                <label for="role">Role:</label>
+                <select id="role" name="role" required>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                    <option value="viewer">Viewer</option>
+                </select>
+
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter full name" required>
+
+                <button type="submit">Create User</button>
+            </form>
+
+            <p><a href="login.html">Back to Login</a></p>
+        </div>
+    </body>
+
+    </html>
 HTML;
 }
 ?>
