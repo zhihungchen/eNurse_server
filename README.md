@@ -1,8 +1,10 @@
 # eNurse Server System
 
-eNurse is a practical robotics project that integrates Natural Language Processing (NLP) and Human-Robot Interaction (HRI) technology. The goal of this project is to build an intelligent nurse assistant capable of assisting healthcare professionals in hospitals by providing patient interaction, data management, and task automation.
+## What is eNurse?
+eNurse is a robotics project integrating Natural Language Processing (NLP) and Human-Robot Interaction (HRI) technologies. Its goal is to build an intelligent nurse assistant that supports healthcare professionals by enabling patient interaction, data management, and task automation through robots like Temi.
 
-This system enables seamless communication between **Temi robots**, **mobile applications**, and **hospital office desktops** through a secure **Docker-based server infrastructure**. By leveraging **NGINX reverse proxy, Apache server, MySQL database, and expandable Python applications**, eNurse ensures efficient and secure interaction within hospital environments.
+## Why we build this repo?
+To enable various services in hospital environments using the Temi robot, a structured and scalable server architecture is essential. This repository provides an extensible foundation for deploying and managing those services.
 
 ---
 
@@ -17,34 +19,17 @@ cd temi_ws
 
 ## Configuration and Settings
 
-To ensure secure and flexible deployment, this project requires a custom `config.json` file containing your own credentials and environment settings. This file should not be committed to GitHub.
+To ensure secure and flexible deployment, this project requires a custom `.env` file containing your own credentials and environment settings. This file could be used for the host and the docker containers.
 
-Example `config.json`:
-```json
-{
-  "MYSQL": {
-    "ROOT_PASSWORD": "your_root_password",
-    "DATABASE": "enurse",
-    "USER": "enurse_user",
-    "PASSWORD": "user_password"
-  },
-  "NGINX": {
-    "HOST": "host.docker.internal",
-    "IP": "192.168.1.85"
-  },
-  "database": {
-    "host": "mysql",
-    "username": "enurse_user",
-    "password": "user_password",
-    "dbname": "enurse"
-  }
-}
-```
-
-After preparing your `config.json`, run the following script to generate a `.env` file for Docker Compose:
+Example `.env`:
 
 ```bash
-python3 generate_env.py
+DB_HOST=your_host_name
+DB_PORT=3306
+DB_NAME=your_db_name
+DB_USER=user
+DB_PASS=pass
+DB_CHARSET=utf8mb4
 ```
 
 ---
@@ -53,7 +38,7 @@ python3 generate_env.py
 
 ```bash
 sudo docker-compose build --no-cache
-sudo docker-compose up -d
+sudo docker-compose up 
 ```
 
 ---
@@ -66,7 +51,7 @@ sudo docker-compose down
 
 ## Deployment Notes
 
-- Ensure the `config.json` file is properly configured before running the system.
+- Ensure the `.env` file is properly configured before running the system.
 - Use scripts under `test` to test APIs
 
 

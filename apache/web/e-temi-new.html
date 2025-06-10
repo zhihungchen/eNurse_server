@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>E護小幫手 任務管理</title>
+  <style>
+    /* 基本排版 */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 20px;
+      background: #f4f4f4;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      display: flex;
+      width: 100%;
+      /* max-width: 1200px; */
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .main {
+      width: 70%;
+      padding: 20px;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .sidebar {
+      width: 15%;
+      padding: 20px;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .sidebar:last-child {
+      border-right: none;
+    }
+
+    h1 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    /* Tabs 與 Temi 切換按鈕 */
+    .tabs,
+    .temis {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      justify-content: center;
+    }
+
+    .tab-button,
+    .temi-button {
+      padding: 10px 15px;
+      border: none;
+      background: #ddd;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.2s ease;
+    }
+
+    .tab-button.active,
+    .temi-button.active {
+      background: #007bff;
+      color: #fff;
+    }
+
+    /* 內容區域 */
+    .tab-content {
+      padding: 20px;
+      border: 1px solid #ddd;
+      background: #fafafa;
+      border-radius: 4px;
+      min-height: 400px;
+    }
+
+    /* 走廊、房間、床位 */
+    /* .hallway {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .side {
+      width: 48%;
+      height: fit-content;
+    }
+    .room {
+      border: 1px solid #ccc;
+      padding: 10px;
+      width: 200px;
+      height: fit-content;
+      margin-bottom: 20px;
+      background: #fff;
+      border-radius: 4px;
+    } */
+    /* 更新後的 CSS */
+    .hallway {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      /* 可選，用來增加走廊之間的間距 */
+    }
+
+    .side {
+      display: flex;
+      flex-wrap: wrap;
+      /* 允許 room 換行 */
+      gap: 20px;
+      /* 間距可依需求調整 */
+      justify-content: flex-start;
+    }
+
+    .room {
+      border: 1px solid #ccc;
+      padding: 10px;
+      width: fit-content;
+      /* 固定寬度 */
+      background: #fff;
+      border-radius: 4px;
+      /* 移除原先的 margin-bottom，改用 gap 管理間距 */
+    }
+
+    .room h3 {
+      margin-top: 0;
+      font-size: 0.8em;
+    }
+
+    /* 床位 UI 調整 */
+    .bed {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 30px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      position: relative;
+      background-color: #f0f0f0;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      padding-left: 35px;
+      transition: background 0.2s ease;
+    }
+
+    /* .bed.service::before {
+      content: "🏥";
+      position: absolute;
+      left: 5px;
+      font-size: 20px;
+    }
+    .bed.empty::before {
+      content: "🛏️";
+      position: absolute;
+      left: 5px;
+      font-size: 20px;
+    }
+    .bed.ocupied::before {
+      content: "🛌";
+      position: absolute;
+      left: 5px;
+      font-size: 20px;
+    } */
+    /* 床位狀態 */
+    /* .bed.service { background-color: #ed9e3c; }
+    .bed.empty { background-color: #bfbfbf; }
+    .bed.ocupied { background-color: #77729c; } */
+
+    .bed.service::before,
+    .bed.empty::before,
+    .bed.ocupied::before {
+      content: attr(data-icon);
+      /* 通过 data-icon 存放不同的 emoji */
+      position: absolute;
+      left: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      /* 或 50% 做圆形 */
+      font-size: 16px;
+      line-height: 1;
+      color: #fff;
+      /* Emoji 前景色 */
+    }
+
+    /* 空床：小蓝块 🛏️ */
+    .bed.empty::before {
+      background-color: #17a2b8;
+      content: "🛏️";
+    }
+
+    /* 有病患：小橘块 🛌 */
+    .bed.ocupied::before {
+      background-color: #fd7e14;
+      content: "🛌";
+    }
+
+    /* 护理站：小绿块 🏥 */
+    .bed.service::before {
+      background-color: #28a745;
+      content: "🏥";
+    }
+
+    .bed.task_empty {
+      background-color: #a4a48c;
+    }
+
+    .bed.task_pending {
+      background-color: #e0d865;
+    }
+
+    .bed.task_ongoing {
+      background-color: #6ec36e;
+    }
+
+    .bed.task_complete {
+      background-color: #a4a48c;
+    }
+
+    .bed.task_failed {
+      background-color: #f44b12;
+    }
+
+    .bed.task_new {
+      background-color: #f1b3b6;
+    }
+
+    .bed.task_moved {
+      background-color: #b3f1ee;
+    }
+
+    .bed.task_pending.task_new {
+      background-color: #f0a122;
+    }
+
+    .bed.task_pending.task_moved {
+      background-color: #f0a122;
+    }
+
+    .bed.task_pending.task_deleted {
+      background-color: #f0a122;
+    }
+
+    .bed.selected {
+      outline: 3px solid #007bff;
+    }
+
+    #bed-selection-actions {
+      margin-top: 15px;
+      /* 上方留点空隙 */
+      text-align: center;
+      /* 按钮水平居中 */
+    }
+
+    #bed-selection-actions .submit-btn {
+      display: inline-block;
+      width: auto;
+      margin: 0 5px;
+    }
+
+    /* 任務清單區塊 */
+    .task-list {
+      background: #fafafa;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      max-height: fit-content;
+      overflow-y: auto;
+    }
+
+    .task-list h2 {
+      margin-top: 0;
+      text-align: center;
+      font-size: medium;
+    }
+
+    .task-item {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #fff;
+      border-radius: 4px;
+      position: relative;
+      cursor: move;
+      font-size: 0.8em;
+    }
+
+    .task-item h3 {
+      margin: 0;
+      font-size: 0.8em;
+      display: inline-block;
+    }
+
+    /* 任务条目列表容器 */
+    .task-entries {
+      list-style: none;
+      /* 去除默认的圆点 */
+      padding: 0;
+      /* 去掉内边距 */
+      margin: 0;
+      /* 去掉外边距 */
+    }
+
+    /* 单個任务条目 */
+    .task-entry {
+      padding: 8px 10px;
+      /* 上下 8px，左右 10px 内边距 */
+      border-bottom: 1px solid #eee;
+      /* 下边框分隔 */
+      font-size: 0.9em;
+      /* 字体略小 */
+    }
+
+    .task-entry.new {
+      font-weight: bold;
+    }
+
+    .task-entry.render {
+      font-style: italic;
+    }
+
+    /* 如果想去掉最后一条的下边框 */
+    .task-entries .task-entry:last-child {
+      border-bottom: none;
+    }
+
+    /* 刪除按鈕 */
+    .remove-btn {
+      float: right;
+      background: transparent;
+      border: none;
+      color: red;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    /* Submit 按鈕 */
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: #007bff;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.2s ease;
+      margin-top: 10px;
+    }
+
+    .submit-btn:hover {
+      background: #0056b3;
+    }
+
+    /* Modal 任務選擇視窗 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      width: 80%;
+    }
+
+    .modal-buttons {
+      margin: 15px 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .modal-task-btn {
+      padding: 10px 15px;
+      border: none;
+      background: #007bff;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 200px;
+    }
+
+    .modal-task-btn:hover {
+      background: #0056b3;
+    }
+
+    .modal-task-btn.selected {
+      background: #0056b3;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+      transform: scale(1.05);
+    }
+
+    #task-selection-actions {
+      margin-top: 15px;
+      /* 上方留点空隙 */
+      text-align: center;
+      /* 按钮水平居中 */
+    }
+
+    #task-selection-actions .submit-btn {
+      display: inline-block;
+      /* 行内块，可设置宽高内外距 */
+      width: auto;
+      /* 宽度随内容自适应 */
+      margin: 0 5px;
+      /* 左右各 5px 间隔，上下无间隔 */
+    }
+
+    /* 拖曳效果 */
+    .dragging {
+      opacity: 0.5;
+    }
+
+    /* 每個床位任务组容器 */
+    .task-group {
+      border: 1px solid #ccc;
+      /* 边框 */
+      border-radius: 4px;
+      /* 圆角 */
+      background: #fff;
+      /* 背景色 */
+      padding: 10px;
+      /* 内边距 */
+      margin-bottom: 10px;
+      /* 底部外边距 */
+      cursor: move;
+      /* 可拖拽时的光标样式 */
+      transition: background 0.2s;
+    }
+
+    .task-group.task_pending {
+      background-color: #e0d865;
+    }
+
+    .task-group.task_ongoing {
+      background-color: #6ec36e;
+    }
+
+    .task-group.task_complete {
+      background-color: #a4a48c;
+    }
+
+    .task-group.task_failed {
+      background-color: #f44b12;
+    }
+
+    .task-group.task_new {
+      background-color: #f1b3b6;
+    }
+
+    .task-group.task_moved {
+      background-color: #b3f1ee;
+    }
+
+    .task-group.task_pending.task_new {
+      background-color: #f0a122;
+    }
+
+    .task-group.task_pending.task_moved {
+      background-color: #f0a122;
+    }
+
+    .task-group.task_pending.task_deleted {
+      background-color: #f0a122;
+    }
+
+    /* 拖拽时的半透明反馈 */
+    .task-group.dragging {
+      opacity: 0.5;
+      background: #f0f0f0;
+    }
+
+    /* Legend 容器 */
+    .legend {
+      margin: 30px 20px;
+      padding-top: 10px;
+      border-top: 1px solid #ddd;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    /* 每一项 */
+    .legend-item {
+      display: flex;
+      align-items: center;
+    }
+
+    /* 图例里的图标：复用床位样式，但固定大小 */
+    .legend-icon {
+      display: inline-flex !important;
+      width: 24px !important;
+      height: 24px !important;
+      margin-right: 6px !important;
+      padding-left: 0 !important;
+    }
+
+    /* 调整伪元素在 legend-icon 里的位置 */
+    .legend-icon::before {
+      left: 2px;
+      top: 2px;
+      width: 20px;
+      height: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="main">
+      <h1>E護小幫手 任務管理</h1>
+      <div class="tabs">
+        <button class="tab-button active" id="5a" onclick="switchTab('5a')">5A病區</button>
+        <button class="tab-button" id="5b" onclick="switchTab('5b')">5B病區</button>
+        <button class="tab-button" id="7b" onclick="switchTab('7b')">7B病區</button>
+      </div>
+      <div class="temis">
+        <button class="temi-button active" id="Temi1" onclick="switchTemi('Temi1')">Temi 1</button>
+        <button class="temi-button" id="Temi2" onclick="switchTemi('Temi2')">Temi 2</button>
+      </div>
+      <div id="tab-content" class="tab-content">
+        請選擇「病區」與「Temi」
+      </div>
+      <div id="bed-selection-actions" style="margin-top:10px; text-align:center;">
+        <button id="confirm-beds" class="submit-btn">確認床位</button>
+        <button class="submit-btn" style="background:#dc3545;" onclick="clearBedSelection()">清除全部</button>
+      </div>
+      <!-- 放在 main 最底部 -->
+      <div id="legend-icon" class="legend">
+        <div class="legend-item">
+          <span class="bed empty legend-icon"></span>
+          <span class="legend-label">空床</span>
+        </div>
+        <div class="legend-item">
+          <span class="bed ocupied legend-icon"></span>
+          <span class="legend-label">有病患</span>
+        </div>
+        <div class="legend-item">
+          <span class="bed service legend-icon"></span>
+          <span class="legend-label">護理站</span>
+        </div>
+      </div>
+      <div id="legend-color" class="legend">
+        <div class="legend-item">
+          <span class="bed task_complete legend-icon"></span>
+          <span class="legend-label">已完成任務</span>
+        </div>
+        <div class="legend-item">
+          <span class="bed task_ongoing legend-icon"></span>
+          <span class="legend-label">進行中任務</span>
+        </div>
+        <div class="legend-item">
+          <span class="bed task_pending legend-icon"></span>
+          <span class="legend-label">待執行任務</span>
+        </div>
+        <div class="legend-item">
+          <span class="bed task_moved legend-icon"></span>
+          <span class="legend-label">重排序任務</span>
+        </div>
+        <div class="legend-item">
+          <span class="bed task_new legend-icon"></span>
+          <!-- <span class="legend-label">擬發佈任務 (<i>斜體：已發佈(伺服器資料)</i>； 粗體：新加入)</span> -->
+          <span class="legend-label">新加入任務</span>
+        </div>
+      </div>
+      <div id="legend-font" class="legend">
+        <div class="legend-item">
+          <span class="legend-label"><i>斜體: 已發佈(伺服器資料)</i></span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-label"><b>粗體: 新加入</b></span>
+        </div>
+      </div>
+    </div>
+    <!-- 左側任務清單 -->
+    <div class="sidebar">
+      <div class="task-list" id="task-list-Temi1">
+        <h2>Temi 1 任務列表</h2>
+      </div>
+      <button class="submit-btn" onclick="submitTaskList('Temi1')">發布任務至 Temi 1</button>
+      <button class="submit-btn" style="background:#dc3545; margin-top:8px;"
+        onclick="clearTaskList('Temi1')">清除列表</button>
+    </div>
+    <!-- 右側任務清單 -->
+    <div class="sidebar">
+      <div class="task-list" id="task-list-Temi2">
+        <h2>Temi 2 任務列表</h2>
+      </div>
+      <button class="submit-btn" onclick="submitTaskList('Temi2')">發布任務至 Temi 2</button>
+      <button class="submit-btn" style="background:#dc3545; margin-top:8px;"
+        onclick="clearTaskList('Temi2')">清除列表</button>
+    </div>
+  </div>
+
+  <!-- Modal 任務選擇視窗 -->
+  <div id="taskModal" class="modal-overlay">
+    <div class="modal">
+      <h2>請選擇任務</h2>
+      <!-- <div class="modal-buttons">
+        <button class="modal-task-btn">術前指導</button>
+        <button class="modal-task-btn">術後指導</button>
+        <button class="modal-task-btn">預防跌倒</button>
+        <button class="modal-task-btn">心臟手術後肩關節運動</button>
+        <button class="modal-task-btn">關節運動及坐起方法</button>
+        <button class="modal-task-btn">心導管手術衛教影片</button>
+        <button class="modal-task-btn">體重測量</button>
+        <button class="modal-task-btn">餐盤放置處</button>
+        <button class="modal-task-btn">病床環境介紹</button>
+        <button class="modal-task-btn">個人置物櫃</button>
+        <button class="modal-task-btn">活力走廊</button>
+      </div> -->
+      <div id="modalButtons" class="modal-buttons">
+        <!-- 按鈕會由 JS 動態塞入這裡 -->
+      </div>
+      <div id="task-selection-actions" style="margin-top:15px; text-align:center;">
+        <button id="confirm-tasks" class="submit-btn">確認任務</button>
+        <button class="submit-btn" style="background:#dc3545;" onclick="clearTaskSelection()">清除全部</button>
+        <button class="submit-btn" style="background:#645e67;" onclick="closeTaskModal()">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 合併確認 Modal -->
+  <div id="mergeModal" class="modal-overlay">
+    <div class="modal">
+      <h2>合併確認</h2>
+      <p id="mergeMessage" style="margin:15px 0;"></p>
+      <div style="text-align:center;">
+        <!-- 这里的按钮就用 submit-btn -->
+        <button id="mergeConfirm" class="submit-btn" style="width:auto; display:inline-block; margin:0 5px;">
+          確認合併
+        </button>
+        <button id="mergeCancel" class="submit-btn"
+          style="background:#dc3545; width:auto; display:inline-block; margin:0 5px;">
+          取消
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 伺服器回覆彈窗 -->
+  <div id="responseModal" class="modal-overlay" style="display:none;">
+    <div class="modal">
+      <h2>伺服器回覆</h2>
+      <div id="responseContent" style="min-height:60px; margin:10px 0;"></div>
+      <button id="closeResponseBtn" class="submit-btn" onclick="closeResponseModal()">確認</button>
+    </div>
+  </div>
+
+  <script>
+    const remote_url = "https://charm.ntuairobo.net:8443/enurse_src/bed_api.php";
+    const local_url = "http://localhost:8080/api/bed_api.php";
+    let url = local_url;
+
+    let choice_model = "multiple";
+    // 單選
+    let currentBed = null;  // 記錄目前點擊的床位
+    // 多選
+    let dragSrcGroup = null;   // 拖曳來源
+
+    // 病區內容資料
+    const content = {
+      "5a": `   
+        <div class="hallway">
+          <div class="side">
+            <div class="room">
+              <h3>Room 1</h3>
+              <div class="bed ocupied">01-0</div>
+            </div>
+            <div class="room">
+              <h3>Room 2</h3>
+              <div class="bed ocupied">02-0</div>
+            </div>
+            <div class="room">
+              <h3>Room 3</h3>
+              <div class="bed ocupied">03-0</div>
+            </div>
+            <div class="room">
+              <h3>Room 5</h3>
+              <div class="bed ocupied">05-0</div>
+            </div>
+          </div>
+          <div class="side">
+            <div class="room">
+              <h3>Room 6</h3>
+              <div class="bed ocupied">06-1</div>
+              <div class="bed ocupied">06-2</div>
+              <div class="bed ocupied">06-3</div>
+              <div class="bed ocupied">06-5</div>
+            </div>
+            <div class="room">
+              <h3>Room 7</h3>
+              <div class="bed ocupied">07-1</div>
+              <div class="bed ocupied">07-2</div>
+              <div class="bed ocupied">07-3</div>
+              <div class="bed ocupied">07-5</div>
+            </div>
+            <div class="room">
+              <h3>Room 8</h3>
+              <div class="bed ocupied">08-1</div>
+              <div class="bed ocupied">08-2</div>
+              <div class="bed empty">08-3</div>
+              <div class="bed empty">08-5</div>
+            </div>
+            <div class="room">
+              <h3>Room 9</h3>
+              <div class="bed ocupied">09-1</div>
+              <div class="bed ocupied">09-2</div>
+              <div class="bed empty">09-3</div>
+              <div class="bed empty">09-5</div>
+            </div>
+          </div>
+          <div class="side">
+            <div class="room">
+              <h3>Room 10</h3>
+              <div class="bed ocupied">10-1</div>
+              <div class="bed ocupied">10-2</div>
+              <div class="bed empty">10-3</div>
+              <div class="bed empty">10-5</div>
+            </div>
+            <div class="room">
+              <h3>Room 11</h3>
+              <div class="bed ocupied">11-1</div>
+              <div class="bed ocupied">11-2</div>
+            </div>
+            <div class="room">
+              <h3>Room 12</h3>
+              <div class="bed empty">12-1</div>
+              <div class="bed empty">12-2</div>
+            </div>
+            <div class="room">
+              <h3>Room 13</h3>
+              <div class="bed ocupied">13-0</div>
+            </div>
+            <div class="room">
+              <h3>Room 15</h3>
+              <div class="bed ocupied">15-0</div>
+            </div>
+            <div class="room">
+              <h3>Room 16</h3>
+              <div class="bed empty">16-0</div>
+            </div>
+            <div class="room">
+              <h3>Room 17</h3>
+              <div class="bed empty">17-0</div>
+            </div>
+            <div class="room">
+              <h3>護理站</h3>
+              <div class="bed service">護理站</div>
+            </div>
+          </div>
+        </div>
+      `,
+      "5b": ` 
+        <div class="hallway">
+          <div class="side">
+            <div class="room">
+              <h3>Room 1</h3>
+              <div class="bed ocupied">01</div>
+            </div>
+            <div class="room">
+              <h3>Room 2</h3>
+              <div class="bed ocupied">02</div>
+            </div>
+            <div class="room">
+              <h3>Room 3</h3>
+              <div class="bed empty">03</div>
+            </div>
+            <div class="room">
+              <h3>Room 5</h3>
+              <div class="bed empty">05</div>
+            </div>
+            <div class="room">
+              <h3>Room 6</h3>
+              <div class="bed ocupied">6-1</div>
+              <div class="bed ocupied">6-2</div>
+              <div class="bed ocupied">6-3</div>
+              <div class="bed ocupied">6-5</div>
+            </div>
+            <div class="room">
+              <h3>Room 7</h3>
+              <div class="bed ocupied">7-1</div>
+              <div class="bed ocupied">7-2</div>
+              <div class="bed ocupied">7-3</div>
+              <div class="bed ocupied">7-5</div>
+            </div>
+            <div class="room">
+              <h3>Room 8</h3>
+              <div class="bed ocupied">8-1</div>
+              <div class="bed ocupied">8-2</div>
+              <div class="bed empty">8-3</div>
+              <div class="bed empty">8-5</div>
+            </div>
+            <div class="room">
+              <h3>Room 9</h3>
+              <div class="bed ocupied">9-1</div>
+              <div class="bed ocupied">9-2</div>
+              <div class="bed empty">9-3</div>
+              <div class="bed empty">9-5</div>
+            </div>
+          </div>
+          <div class="side">
+            <div class="room">
+              <h3>Room 10</h3>
+              <div class="bed ocupied">10</div>
+            </div>
+            <div class="room">
+              <h3>Room 11</h3>
+              <div class="bed empty">11</div>
+            </div>
+            <div class="room">
+              <h3>Room 12</h3>
+              <div class="bed empty">12-1</div>
+              <div class="bed empty">12-2</div>
+            </div>
+            <div class="room">
+              <h3>Room 13</h3>
+              <div class="bed empty">13-1</div>
+              <div class="bed empty">13-2</div>
+            </div>
+            <div class="room">
+              <h3>Room 15</h3>
+              <div class="bed empty">15</div>
+            </div>
+            <div class="room">
+              <h3>Room 16</h3>
+              <div class="bed empty">16</div>
+            </div>
+            <div class="room">
+              <h3>Room 17</h3>
+              <div class="bed empty">17</div>
+            </div>
+            <div class="room">
+              <h3>Room 18</h3>
+              <div class="bed empty">18</div>
+            </div>
+          </div>
+        </div>
+      `,
+      "7b": `   
+        <div class="hallway">
+          <div class="side">
+            <div class="room">
+              <h3>Room 1</h3>
+              <div class="bed ocupied">01</div>
+            </div>
+            <div class="room">
+              <h3>Room 2</h3>
+              <div class="bed ocupied">02</div>
+            </div>
+            <div class="room">
+              <h3>Room 3</h3>
+              <div class="bed empty">03</div>
+            </div>
+            <div class="room">
+              <h3>Room 5</h3>
+              <div class="bed empty">05</div>
+            </div>
+            <div class="room">
+              <h3>Room 6</h3>
+              <div class="bed ocupied">6-1</div>
+              <div class="bed ocupied">6-2</div>
+              <div class="bed ocupied">6-3</div>
+              <div class="bed ocupied">6-5</div>
+            </div>
+            <div class="room">
+              <h3>Room 7</h3>
+              <div class="bed ocupied">7-1</div>
+              <div class="bed ocupied">7-2</div>
+              <div class="bed ocupied">7-3</div>
+              <div class="bed ocupied">7-5</div>
+            </div>
+            <div class="room">
+              <h3>Room 8</h3>
+              <div class="bed ocupied">8-1</div>
+              <div class="bed ocupied">8-2</div>
+              <div class="bed empty">8-3</div>
+              <div class="bed empty">8-5</div>
+            </div>
+            <div class="room">
+              <h3>Room 9</h3>
+              <div class="bed ocupied">9-1</div>
+              <div class="bed ocupied">9-2</div>
+              <div class="bed empty">9-3</div>
+              <div class="bed empty">9-5</div>
+            </div>
+          </div>
+          <div class="side">
+            <div class="room">
+              <h3>Room 10</h3>
+              <div class="bed ocupied">10-1</div>
+              <div class="bed ocupied">10-2</div>
+              <div class="bed empty">10-3</div>
+              <div class="bed empty">10-5</div>
+            </div>
+            <div class="room">
+              <h3>Room 11</h3>
+              <div class="bed empty">11-1</div>
+              <div class="bed empty">11-2</div>
+            </div>
+            <div class="room">
+              <h3>Room 12</h3>
+              <div class="bed empty">12-1</div>
+              <div class="bed empty">12-2</div>
+            </div>
+            <div class="room">
+              <h3>Room 13</h3>
+              <div class="bed empty">13</div>
+            </div>
+            <div class="room">
+              <h3>Room 15</h3>
+              <div class="bed empty">15</div>
+            </div>
+            <div class="room">
+              <h3>Room 16</h3>
+              <div class="bed empty">16</div>
+            </div>
+            <div class="room">
+              <h3>Room 17</h3>
+              <div class="bed empty">17</div>
+            </div>
+          </div>
+        </div>
+      `
+    };
+
+    // 切換病區標籤並更新內容，並為新產生的床加上點擊事件
+    function switchTab(tabName) {
+      document.getElementById("tab-content").innerHTML = content[tabName];
+      document.querySelectorAll(".tab-button").forEach(button => {
+        button.classList.remove("active");
+        if (button.id === tabName) {
+          button.classList.add("active");
+        }
+      });
+      attachBedListeners();
+    }
+
+    // 切換 Temi 標籤
+    function switchTemi(tabName) {
+      document.querySelectorAll(".temi-button").forEach(button => {
+        button.classList.remove("active");
+        if (button.id === tabName) {
+          button.classList.add("active");
+        }
+      });
+    }
+
+    // 顯示 modal
+    function showTaskModal() {
+      populateModalButtons();
+      document.getElementById("taskModal").style.display = "flex";
+    }
+    // 隱藏 modal
+    function closeTaskModal() {
+      document.getElementById("taskModal").style.display = "none";
+      clearBedSelection();
+      clearTaskSelection();
+    }
+
+    // 把 Java List 改成 JS 陣列
+    const taskNames = [
+      "心導管手術衛教", "心導管手術通知", "開心之路術前指導", "開心之路術後指導",
+      "如何做個快樂開心人", "關節運動及坐起方法", "心臟手術後肩關節運動", "國語版預防跌倒",
+      "台語版預防跌倒", "尿液檢體", "痰液檢體", "免疫法糞便檢體",
+      "T型糞便檢體", "24小時CCR", "12小時CCR", "一般手術通知",
+      "靜脈曲張", "主動脈瘤", "動脈阻塞", "瓣膜性心臟術後",
+      "冠狀動脈術後", "抽血後衛教"
+    ];
+
+    // 動態生成 Modal 內任務選項
+    function populateModalButtons() {
+      const container = document.getElementById('modalButtons');
+      container.innerHTML = ''; // 先清空舊按鈕
+      taskNames.forEach(name => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'modal-task-btn';
+        btn.textContent = name;
+        // 切換選中效果
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('selected');
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    // 為所有床位綁定點擊事件
+    function attachBedListeners() {
+      document.querySelectorAll(".bed").forEach(bed => {
+        bed.onclick = () => {
+          if (choice_model === "single") {
+            // 單選，打开任务弹窗 Modal
+            currentBed = bed;
+            showTaskModal();
+          }
+          else {
+            // 多選，可視化「已選」
+            bed.classList.toggle("selected");
+          }
+        };
+      });
+    }
+
+    // 清空已選中的床位
+    function clearBedSelection() {
+      document.querySelectorAll(".bed.selected")
+        .forEach(bed => bed.classList.remove("selected"));
+    }
+
+    // 創建 task-group
+    function createTaskGroup(container, bedKey, tasks) {
+      const group = document.createElement("div");
+      group.classList.add("task-group");
+      group.setAttribute("data-bed", bedKey);
+      group.innerHTML = `<h3>${bedKey}</h3><ul class="task-entries"></ul>`;
+      const ul = group.querySelector(".task-entries");
+
+      tasks.forEach(task_name => {
+        const li = document.createElement("li");
+        li.classList.add("task-entry");
+
+        // 把任务名包在 span 里
+        const span = document.createElement("span");
+        span.classList.add("task-text");
+        span.textContent = task_name;
+        li.appendChild(span);
+
+        // 如果还想保留删除按钮：
+        const btn = document.createElement("button");
+        btn.classList.add("remove-btn");
+        btn.textContent = "×";
+        btn.addEventListener("click", () => li.remove());
+        li.appendChild(btn);
+
+        ul.appendChild(li);
+      });
+
+      addGroupDragAndDrop(group);
+      container.appendChild(group);
+    }
+
+    // 為所有任務綁定點擊事件
+    function attachTaskListeners() {
+      if (choice_model === "single") {
+        // 單選，當 modal 中任一任務按鈕被點擊時，提交至task-list
+        document.querySelectorAll(".modal-task-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const task = btn.textContent.trim();
+            if (!currentBed) return;
+            const bedId = currentBed.textContent.trim();
+            // 更新床位狀態
+            currentBed.classList.remove("task_pending", "task_ongoing", "task_compelete", "task_failed");
+            currentBed.classList.add("task_pending");
+
+            const currentTemi = document.querySelector(".temi-button.active").id;
+            const currentRegion = document.querySelector(".tab-button.active").id;
+            const taskList = document.getElementById(`task-list-${currentTemi}`);
+            const taskKey = `${currentRegion}${bedId}`;
+            let taskItem = document.querySelector(`[data-bed='${taskKey}']`);
+            if (taskItem) {
+              // 更新內容 (同時保留 remove 按鈕與拖曳事件)
+              taskItem.querySelector(".content").innerHTML = `<h3>${taskKey}</h3><div>${task}</div>`;
+            } else {
+              // 建立新的任務項目，內含內容區與刪除按鈕
+              const newTask = document.createElement("div");
+              newTask.className = "task-item";
+              newTask.setAttribute("data-bed", taskKey);
+              newTask.innerHTML = `<div class="content"><h3>${taskKey}</h3><div>${task}</div></div>`;
+              // 新增刪除按鈕
+              const removeBtn = document.createElement("button");
+              removeBtn.textContent = "x";
+              removeBtn.className = "remove-btn";
+              removeBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                newTask.remove();
+              });
+              newTask.appendChild(removeBtn);
+              taskList.appendChild(newTask);
+              addDragAndDrop(newTask);
+            }
+            closeTaskModal();
+          });
+        });
+      }
+      else {
+        // 多選，把 modal-task-btn 点击从“立即添加”改为“切换 selected” 可視化「已選」
+        document.querySelectorAll(".modal-task-btn").forEach(btn => {
+          btn.onclick = () => btn.classList.toggle("selected");
+        });
+      }
+    }
+
+    // 清空選中的任務
+    function clearTaskSelection() {
+      document.querySelectorAll(".modal-task-btn.selected")
+        .forEach(btn => btn.classList.remove("selected"));
+    }
+
+    // “確認床位”按鈕：打開任務彈窗 Modal
+    document.getElementById("confirm-beds").addEventListener("click", () => {
+      const sels = Array.from(document.querySelectorAll(".bed.selected"));
+      if (sels.length === 0) {
+        alert("請先選中一個或多個床位");
+        return;
+      }
+      showTaskModal();
+    });
+
+    // “確認任務”按鈕：把選中的任務分配給先前選中的床位
+    document.getElementById("confirm-tasks").onclick = () => {
+      const beds = Array.from(document.querySelectorAll(".bed.selected"));
+      const tasks = Array.from(document.querySelectorAll(".modal-task-btn.selected"))
+        .map(b => b.textContent.trim());
+      if (tasks.length === 0) {
+        alert("請先選中一個或多個任務");
+        return;
+      }
+      addTasksToList(beds, tasks);
+      closeTaskModal();
+    };
+
+
+    // 新增拖拽功能
+    function dragStart(e) {
+      dragSrcGroup = this;
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', null); // for Firefox
+      this.classList.add("dragging");
+    }
+
+    function dragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      return false;
+    }
+
+    function drop(e) {
+      e.stopPropagation();
+      if (dragSrcGroup !== this) {
+        let container = this.parentNode;
+        let children = Array.from(container.children);
+        let srcIndex = children.indexOf(dragSrcGroup);
+        let destIndex = children.indexOf(this);
+        if (srcIndex < destIndex) {
+          container.insertBefore(dragSrcGroup, this.nextSibling);
+        } else {
+          container.insertBefore(dragSrcGroup, this);
+        }
+      }
+      return false;
+    }
+
+    function dragEnd(e) {
+      this.classList.remove("dragging");
+    }
+
+    // 單選情況的拖拽
+    function addDragAndDrop(taskItem) {
+      taskItem.setAttribute("draggable", true);
+      taskItem.addEventListener("dragstart", dragStart, false);
+      taskItem.addEventListener("dragover", dragOver, false);
+      taskItem.addEventListener("drop", drop, false);
+      taskItem.addEventListener("dragend", dragEnd, false);
+    }
+
+    // 多選情況時，為每個 .task-group 添加拖拽合併功能
+    function addGroupDragAndDrop(group) {
+      group.draggable = true;
+
+      group.addEventListener('dragstart', e => {
+        // 標記當前拖拽的組
+        dragSrcGroup = group;
+        group.classList.add('dragging');
+      });
+
+      group.addEventListener('dragover', e => {
+        e.preventDefault(); // 必須阻止默認，才能觸發 drop
+      });
+
+      group.addEventListener('drop', e => {
+        e.preventDefault();
+        // 如果沒有源元素或拖到自己，就不處理
+        if (!dragSrcGroup || dragSrcGroup === group) return;
+
+        const srcBed = dragSrcGroup.getAttribute('data-bed');
+        const dstBed = group.getAttribute('data-bed');
+        const container = group.parentNode;
+
+        if (srcBed === dstBed) {
+          // 同床位：合并任务列表
+          const srcItems = dragSrcGroup.querySelectorAll('.task-entry');
+          const dstUl = group.querySelector('.task-entries');
+          srcItems.forEach(li => dstUl.appendChild(li));
+          group.classList.add("task_moved");
+          dragSrcGroup.remove();
+        } else {
+          // 不同床位：根据鼠标位置决定插入前或插入后
+          const { top, height } = group.getBoundingClientRect();
+          const offsetY = e.clientY - top;
+          if (offsetY < height / 2) {
+            container.insertBefore(dragSrcGroup, group);
+            dragSrcGroup.classList.add("task_moved");
+          } else {
+            container.insertBefore(dragSrcGroup, group.nextSibling);
+            dragSrcGroup.classList.add("task_moved");
+          }
+        }
+      });
+
+      group.addEventListener('dragend', () => {
+        group.classList.remove('dragging');
+        dragSrcGroup = null;
+      });
+    }
+
+    // 給現有和新創建的 .task-group 調用
+    // document.querySelectorAll('.task-group').forEach(addGroupDragAndDrop);
+
+    // 詢問是否合併至已安排任務床位的.task-group
+    /**
+     * 彈出合併確認彈窗，返回 Promise<boolean>
+     * resolve(true)  => 用戶點擊“確認合併”
+     * resolve(false) => 用戶點擊“取消”
+     */
+    function showMergeModal(message) {
+      return new Promise(resolve => {
+        // 显示并设置文字
+        mergeMessage.textContent = message;
+        mergeModal.style.display = 'flex';
+
+        // 事件处理
+        const onConfirm = () => finish(true);
+        const onCancel = () => finish(false);
+
+        mergeConfirm.addEventListener('click', onConfirm);
+        mergeCancel.addEventListener('click', onCancel);
+
+        function finish(result) {
+          // 隐藏弹窗，移除监听
+          mergeModal.style.display = 'none';
+          mergeConfirm.removeEventListener('click', onConfirm);
+          mergeCancel.removeEventListener('click', onCancel);
+          resolve(result);
+        }
+      });
+    }
+
+    /**
+     * 將任務插入右側列表
+     * beds: Array of 已選中的床位 DOM 元素
+     * tasks: Array of 任務名稱（string）
+     */
+    function addTasksToList(beds, tasks) {
+      const currentTemi = document.querySelector(".temi-button.active").id;
+      const currentRegion = document.querySelector(".tab-button.active").id;
+      const taskList = document.getElementById(`task-list-${currentTemi}`);
+
+      beds.forEach(bedEl => {
+        // 修正床位 key： region-bedName
+        const bedKey = `${currentRegion}${bedEl.textContent.trim()}`;
+
+        // 查找是否已有相同床位组
+        const existingGroup = taskList.querySelector(`.task-group[data-bed="${bedKey}"]`);
+
+        if (existingGroup && !existingGroup.classList.contains("task_ongoing")) {
+          // 彈窗詢問是否合併
+          showMergeModal(`床位 ${bedKey} 已在列表中，是否將新任務合併到已有紀錄？`)
+            .then(merge => {
+              if (merge) {
+                const ul = existingGroup.querySelector(".task-entries");
+                tasks.forEach(task_name => {
+                  const li = document.createElement("li");
+                  li.className = "task-entry";
+                  li.classList.add("new");
+
+                  // 把任务名包在 span 里
+                  const span = document.createElement("span");
+                  span.classList.add("task-text");
+                  span.textContent = task_name;
+                  li.appendChild(span);
+
+                  // 新增子任務刪除按鈕
+                  const removeBtn = document.createElement("button");
+                  removeBtn.textContent = "x";
+                  removeBtn.className = "remove-btn";
+                  removeBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    li.remove();
+                    if (ul.children.length === 0) {
+                      existingGroup.remove();
+                    }
+                  });
+                  li.appendChild(removeBtn);
+
+                  ul.appendChild(li);
+
+                  // existingGroup.classList.remove("task_pending");
+                  existingGroup.classList.add("task_new");
+                });
+              } else {
+                // 不合并：新建一条独立记录
+                const group = document.createElement("div");
+                group.className = "task-group";
+                group.setAttribute("data-bed", bedKey);
+                group.innerHTML = `
+                <h3>${bedKey}</h3>
+                <ul class="task-entries"></ul>
+              `;
+                const ul = group.querySelector(".task-entries");
+                tasks.forEach(task_name => {
+                  const li = document.createElement("li");
+                  li.className = "task-entry";
+                  li.classList.add("new");
+
+                  // 把任务名包在 span 里
+                  const span = document.createElement("span");
+                  span.classList.add("task-text");
+                  span.textContent = task_name;
+                  li.appendChild(span);
+
+                  // 新增子任務刪除按鈕
+                  const removeBtn = document.createElement("button");
+                  removeBtn.textContent = "x";
+                  removeBtn.className = "remove-btn";
+                  removeBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    li.remove();
+                    if (ul.children.length === 0) {
+                      group.remove();
+                    }
+                  });
+                  li.appendChild(removeBtn);
+
+                  ul.appendChild(li);
+                });
+
+                // 新增刪除按鈕
+                const removeBtn = document.createElement("button");
+                removeBtn.textContent = "x";
+                removeBtn.className = "remove-btn";
+                removeBtn.addEventListener("click", (e) => {
+                  e.stopPropagation();
+                  group.remove();
+                });
+
+                group.appendChild(removeBtn);
+
+                addGroupDragAndDrop(group);
+                taskList.appendChild(group);
+
+                group.classList.add("task_new");
+              }
+            });
+        } else {
+
+          // 新建一個床位组容器
+          const group = document.createElement("div");
+          group.className = "task-group";
+          group.setAttribute("data-bed", bedKey);
+          group.innerHTML = `
+            <h3>${bedKey}</h3>
+            <ul class="task-entries"></ul>
+          `;
+
+          // 逐一添加任务 li
+          const ul = group.querySelector(".task-entries");
+          tasks.forEach(task_name => {
+            const li = document.createElement("li");
+            li.className = "task-entry";
+            li.classList.add("new");
+
+            // 把任务名包在 span 里
+            const span = document.createElement("span");
+            span.classList.add("task-text");
+            span.textContent = task_name;
+            li.appendChild(span);
+
+            // 新增子任務刪除按鈕
+            const removeBtn = document.createElement("button");
+            removeBtn.textContent = "x";
+            removeBtn.className = "remove-btn";
+            removeBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              li.remove();
+              if (ul.children.length === 0) {
+                group.remove();
+              }
+            });
+            li.appendChild(removeBtn);
+
+            ul.appendChild(li);
+          });
+
+          // 新增刪除按鈕
+          const removeBtn = document.createElement("button");
+          removeBtn.textContent = "x";
+          removeBtn.className = "remove-btn";
+          removeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            group.remove();
+          });
+          group.appendChild(removeBtn);
+
+          // 初始化拖拽合并
+          addGroupDragAndDrop(group);
+          taskList.appendChild(group);
+
+          group.classList.add("task_new");
+        }
+
+        // 標記床位有待執行任務
+        bedEl.classList.add("task_new");
+      });
+    }
+
+    /**
+     * 将自動同步的伺服器紀錄任务插入右侧列表
+     * values: Array of 任务
+     */
+    function renderFetchedTasks(values) {
+      // const currentTemi = document.querySelector(".temi-button.active").id;
+      // const taskList = document.getElementById(`task-list-${currentTemi}`);
+      const taskList = document.getElementById(`task-list-Temi1`);
+      taskList.innerHTML = "<h2>Temi 1 任務列表</h2>"; // 清空舊任務
+
+      values.forEach(bed => {
+        const { _, floor, room_number, bed_name, bed_id, tasks, status } = bed;
+
+        // 嘗試將 tasks 轉成陣列
+        let parsedTasks = [];
+
+        if (Array.isArray(tasks)) {
+          parsedTasks = tasks;
+          // //for debug
+          // document.getElementById("responseContent").textContent = "⚠️任務 is Array:" + tasks;
+          // showResponseModal();
+        } else if (typeof tasks === "string") {
+          // //for debug
+          // document.getElementById("responseContent").textContent = "⚠️任務 is string:" + tasks;
+          // showResponseModal();
+
+          try {
+            const t = JSON.parse(tasks);
+            if (Array.isArray(t)) {
+              parsedTasks = t;
+              // //for debug
+              // document.getElementById("responseContent").textContent = "⚠️任務 is Array:" + tasks;
+              // showResponseModal();
+            }
+          } catch (e) {
+            console.warn("⚠️ 無法解析任務 JSON 字串：", tasks);
+            // //for debug
+            // document.getElementById("responseContent").textContent = "⚠️ 無法解析任務 JSON 字串：" + tasks;
+            // showResponseModal();
+          }
+        }
+
+        // 標記床位有待執行任務
+        document.querySelectorAll(".bed").forEach(bed => {
+          if (bed.textContent.trim() === bed_name) {
+            bed.classList.remove("task_new", "task_pending", "task_ongoing", "task_complete", "task_failed");
+            if (status === "pending")
+              bed.classList.add("task_pending");
+            if (status === "ongoing")
+              bed.classList.add("task_ongoing");
+            if (status === "complete")
+              bed.classList.add("task_complete");
+          }
+        });
+
+        // 建立 group 容器
+        const group = document.createElement("div");
+        group.className = "task-group";
+        group.setAttribute("data-bed", bed_id);
+        group.innerHTML = `
+          <h3>${bed_id}</h3>
+          <ul class="task-entries"></ul>
+        `;
+
+        // 插入任務列表
+        const ul = group.querySelector(".task-entries");
+        parsedTasks.forEach(task => {
+          const li = document.createElement("li");
+          li.className = "task-entry";
+          li.classList.add("render");
+
+          // 把任务名包在 span 里
+          const span = document.createElement("span");
+          span.classList.add("task-text");
+          span.textContent = task.task_name || "(未知任務)";
+          li.appendChild(span);
+
+          // 新增子任務刪除按鈕
+          if (status !== "complete" && status !== "ongoing") {
+            const removeBtn = document.createElement("button");
+            removeBtn.textContent = "x";
+            removeBtn.className = "remove-btn";
+            removeBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+
+              if (group.classList.contains("task_ongoing")) {
+                alert("無法刪除正在進行的任務");
+                return;
+              }
+
+              else if (group.classList.contains("task_pending")) {
+                // 1. 跳出確認對話框
+                const ok = confirm("這項任務尚未執行，確定要刪除嗎？");
+                if (!ok) return;
+
+                // 2. 取出 task_id（你要先在建立 group 時加上 data-task-id）
+                const bedId = group.getAttribute("data-bed");
+                if (!bedId) {
+                  alert("找不到床位任務，無法刪除");
+                  return;
+                }
+
+                const values = parsedTasks.filter(t => t.task_name !== task.task_name);
+                if (values.length === 0) {
+                  action = "delete";
+                } else {
+                  action = "update";
+                  group.classList.add("task_deleted");
+                }
+
+                // 3. 發 DELETE 請求到你的 API
+                fetch("http://localhost:8080/src/bed_api.php", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    data_type: "table_enurse_beds",
+                    action: action,
+                    values: [{
+                      bed_id: bedId,
+                      tasks: parsedTasks.filter(t => t.task_name !== task.task_name)
+                    }]
+                  })
+                })
+                  .then(res => res.json())
+                  .then(data => {
+                    if (data.values) {
+                      // 4. 後端刪除成功，再從前端移除
+                      if (data.values.length > 0) {
+                        alert("刪除成功");
+                      } else {
+                        alert("刪除失敗：找不到該任務");
+                      }
+                      group.remove();
+                    } else {
+                      alert("刪除失敗：" + (json.error || "未知錯誤"));
+                    }
+                  })
+                  .catch(err => {
+                    console.error(err);
+                    alert("伺服器或網路錯誤，無法刪除");
+                  });
+
+                return;
+              }
+
+              else {
+                // 直接刪除
+                group.remove();
+              }
+            });
+
+            if (ul.children.length === 0) {
+              group.remove();
+              // bed.classList.remove("task_pending");
+            }
+
+            li.appendChild(removeBtn);
+          }
+
+          ul.appendChild(li);
+        });
+
+        // 加入刪除按鈕
+        if (status !== "complete" && status !== "ongoing") {
+          const removeBtn = document.createElement("button");
+          removeBtn.textContent = "x";
+          removeBtn.className = "remove-btn";
+          removeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+
+            if (group.classList.contains("task_ongoing")) {
+              alert("無法刪除正在進行的任務");
+              return;
+            }
+
+            else if (group.classList.contains("task_pending")) {
+              // 1. 跳出確認對話框
+              const ok = confirm("這項任務尚未執行，確定要刪除嗎？");
+              if (!ok) return;
+
+              // 2. 取出 task_id（你要先在建立 group 時加上 data-task-id）
+              const bedId = group.getAttribute("data-bed");
+              if (!bedId) {
+                alert("找不到床位任務，無法刪除");
+                return;
+              }
+
+              // 3. 發 DELETE 請求到你的 API
+              fetch("http://localhost:8080/src/bed_api.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  data_type: "table_enurse_beds",
+                  action: "delete",
+                  values: [{ bed_id: bedId }]
+                })
+              })
+                .then(res => res.json())
+                .then(data => {
+                  if (data.values) {
+                    // 4. 後端刪除成功，再從前端移除
+                    if (data.values.length > 0) {
+                      alert("刪除成功");
+                      group.remove();
+                      values.forEach(bed => {
+                        const { bed_id, status } = bed;
+                        document.querySelectorAll(".bed.task_pending").forEach(bedEl => {
+                          if (bedEl.textContent.trim() === bed_id.slice(2)) {
+                            bedEl.classList.remove("task_pending");
+                          }
+                        });
+                      });
+                      const contentDiv = document.getElementById("responseContent");
+                      contentDiv.textContent = typeof data === "object"
+                        ? JSON.stringify(data, null, 2)
+                        : data;
+                      showResponseModal();
+                    } else {
+                      alert("刪除失敗：找不到該任務");
+                    }
+                  } else {
+                    alert("刪除失敗：" + (json.error || "未知錯誤"));
+                  }
+                })
+                .catch(err => {
+                  console.error(err);
+                  alert("伺服器或網路錯誤，無法刪除");
+                });
+
+              return;
+            }
+
+            else {
+              // 直接刪除
+              group.remove();
+              // bed.classList.remove("task_pending");
+            }
+          });
+          group.appendChild(removeBtn);
+        }
+
+        // 啟用拖曳功能
+        if (status === "pending") {
+          addGroupDragAndDrop(group);
+        }
+
+        taskList.appendChild(group);
+        group.classList.add("task_" + status);
+      });
+    }
+
+
+
+    // 清除指定 Temi 的 task-list 內所有 .task-group
+    // @param {string} temiId 'Temi1' 或 'Temi2'
+    function clearTaskList(temiId) {
+      const listDiv = document.getElementById(`task-list-${temiId}`);
+      // 找到所有 task-group，逐一移除
+      listDiv.querySelectorAll('.task-group').forEach(group => group.remove());
+    }
+
+    // 顯示彈窗
+    function showResponseModal() {
+      document.getElementById("responseModal").style.display = "flex";
+    }
+
+    // 隱藏彈窗
+    function closeResponseModal() {
+      document.getElementById("responseModal").style.display = "none";
+
+      fetch(url, {
+        mode: "cors",
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...getHeaders()
+        },
+        body: JSON.stringify({
+          data_type: "table_enurse_beds",
+          action: "get_all",
+          values: [{}]
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data.values)) {
+            renderFetchedTasks(data.values);
+          }
+        })
+        .catch(err => {
+          console.error("自動載入任務失敗：", err);
+        });
+    }
+
+    /**
+     * 从 bedKey 中还原 floor、room_number、bed_name
+     * @param {string} bedKey e.g. "5a09-3"
+     */
+    function parseBedKey(bedKey) {
+      if (!bedKey || bedKey.length < 3) {
+        throw new Error("bedKey 格式錯誤");
+      }
+      const floor = bedKey.slice(0, 2);                  // "5a"
+      const bed_name = bedKey.slice(2);                  // "09-3"
+      const [room_number] = bed_name.split('-');         // "09"
+      const bed_id = bedKey                              // "5a09-3"
+      return { floor, room_number, bed_name, bed_id };
+    }
+
+
+    /**
+     * 返回包含 Basic Authorization 的 headers 对象
+     * username 和 password 建议从安全存储或环境变量中读取
+     */
+    function getHeaders() {
+      // TODO
+      const u_id = 'robot';
+      const p_id = 'buzhidaowsmbeigongji';
+
+      // JS 原生 btoa 实现 Base64 编码
+      const creds = `${u_id}:${p_id}`;
+      const auth = 'Basic ' + btoa(creds);
+
+      return {
+        'Authorization': auth
+      };
+    }
+
+    /**
+     * 收集所有 task-group、整理为后端需要的 payload 并打包发送
+     */
+    function submitTaskList(temi) {
+      const taskListDiv = document.getElementById(`task-list-${temi}`);
+      const groups = taskListDiv.querySelectorAll(".task-group");
+      // const bedTasksMap = {};
+      const values = []
+
+      groups.forEach(group => {
+        if (!group.classList.contains("task_ongoing")) {
+          // 读取 data-bed 并拆成 floor + bed_name
+          const key = group.getAttribute("data-bed");        // e.g. "5a01-0"
+          const { floor, room_number, bed_name, bed_id } = parseBedKey(key);
+
+          // 从 .task-entry.task-text 逐条读出 task_name
+          const entries = Array.from(group.querySelectorAll(".task-entry .task-text"))
+            .map(span => span.textContent.trim())
+            .filter(s => s);;
+
+          // 构造每项任务 object
+          const tasks = entries.map(task_name => ({
+            task_name,
+            status: "pending",
+            created_at: Date.now(),
+            start_time: 0,
+            finish_time: 0
+          }));
+
+          if (tasks.length) {
+            // bedTasksMap[key] = { floor, room_number, bed_name, bed_id, tasks };
+            values.push({ floor, room_number, bed_name, bed_id, tasks });
+          }
+        }
+      });
+
+      // 如果沒有任務就不發
+      // if (Object.keys(bedTasksMap).length === 0) {
+      //   return alert("目前沒有可提交的任務！");
+      // }
+      if (values.length === 0) {
+        return alert("目前沒有可提交的任務！");
+      }
+
+      const payload = {
+        data_type: "table_enurse_beds",
+        action: "insert",
+        values: values
+      };
+
+      // 發送請求
+      // TODO: https網頁無法發送給http
+      // const url = "http://140.112.95.5:8099/task_api.php"
+
+      // Object.values(bedTasksMap).forEach(({ floor, room_number, bed_name, bed_id, tasks }) => {
+      fetch(url, {
+        mode: "cors",
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          ...getHeaders()
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(res => res.json())
+        .then(data => {
+          const contentDiv = document.getElementById("responseContent");
+          contentDiv.textContent = typeof data === "object"
+            ? JSON.stringify(data, null, 2)
+            : data;
+          showResponseModal();
+        })
+        .catch(err => {
+          document.getElementById("responseContent").textContent = "通訊錯誤：" + err;
+          showResponseModal();
+        });
+      // // debug
+      // .then(response => response.text()) // ✅ 不用 json 解析
+      // .then(text => {
+      //   // 直接塞進 modal、彈窗、div 等
+      //   document.getElementById("responseContent").textContent = text;
+      //   showResponseModal();
+      // })
+      // .catch(err => {
+      //   document.getElementById("responseContent").textContent = "通訊錯誤：" + err.message;
+      //   showResponseModal();
+      // });
+      // });
+    }
+
+    async function fetchTableBeds(data) {
+      try {
+        const response = await fetch("http://localhost:8080/src/bed_api.php", {
+          mode: "cors",
+          method: "POST",
+          credentials: "include", // 若需要 cookie / Basic Auth
+          headers: {
+            "Content-Type": "application/json",
+            ...getHeaders()
+          },
+          body: JSON.stringify(data)
+        });
+
+        // 檢查是否成功
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const contentType = response.headers.get("Content-Type") || "";
+        if (!contentType.includes("application/json")) {
+          throw new Error("回應不是 JSON 格式");
+        }
+
+        const text = await response.text();
+        if (text.trim() === "") {
+          throw new Error("伺服器回應為空");
+        }
+
+        const result = JSON.parse(text);
+
+        // ✅ 成功後的處理邏輯
+        if (result.values) {
+          console.log("接收到資料：", result.values);
+        } else {
+          console.warn("資料格式不符：", result);
+        }
+
+      } catch (err) {
+        console.error("通訊錯誤：", err.message);
+      }
+    }
+
+
+    // 初始設定：預設選擇 Temi1 與 5A 病區
+    document.addEventListener("DOMContentLoaded", () => {
+      switchTemi("Temi1");
+      switchTab("5a");
+
+      fetch(url, {
+        mode: "cors",
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...getHeaders()
+        },
+        body: JSON.stringify({
+          data_type: "table_enurse_beds",
+          action: "get_all",
+          values: [{}]
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data.values)) {
+            renderFetchedTasks(data.values);
+          }
+        })
+        .catch(err => {
+          console.error("自動載入任務失敗：", err);
+        });
+      // // for debug
+      // .then(response => response.text()) // ✅ 不用 json 解析
+      // .then(text => {
+      //   // 直接塞進 modal、彈窗、div 等
+      //   document.getElementById("responseContent").textContent = text;
+      //   showResponseModal();
+      // })
+      // .catch(err => {
+      //   document.getElementById("responseContent").textContent = "通訊錯誤：" + err.message;
+      //   showResponseModal();
+      // });
+    });
+  </script>
+</body>
+
+</html>
