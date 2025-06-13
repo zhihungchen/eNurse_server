@@ -34,7 +34,7 @@ try {
 
 // 一些示例常量（根据需要自行添加）
 // 常量定义：基础 URL
-define('RDS_BASE_URL', getenv('BASE_URL') ?: 'http://localhost/enurse_src/');
+define('RDS_BASE_URL', getenv('BASE_URL') ?: 'http://localhost:80/api/');
 
 // ---------- 操作类型 ----------
 define('KEY_DATA_TYPE',    'data_type');
