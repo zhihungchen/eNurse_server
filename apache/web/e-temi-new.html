@@ -680,7 +680,7 @@
 
   <script>
     const remote_url = "https://charm.ntuairobo.net:8443/enurse_src/bed_api.php";
-    const local_url = "http://localhost:8080/api/bed_api.php";
+    const local_url = "https://localhost/api/bed_api.php";
     let url = local_url;
 
     let choice_model = "multiple";
@@ -1556,7 +1556,7 @@
                 }
 
                 // 3. 發 DELETE 請求到你的 API
-                fetch("http://localhost:8080/src/bed_api.php", {
+                fetch(url, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
@@ -1633,7 +1633,7 @@
               }
 
               // 3. 發 DELETE 請求到你的 API
-              fetch("http://localhost:8080/src/bed_api.php", {
+              fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -1762,8 +1762,8 @@
      */
     function getHeaders() {
       // TODO
-      const u_id = 'robot';
-      const p_id = 'buzhidaowsmbeigongji';
+      const u_id = '';
+      const p_id = '';
 
       // JS 原生 btoa 实现 Base64 编码
       const creds = `${u_id}:${p_id}`;
@@ -1867,7 +1867,7 @@
 
     async function fetchTableBeds(data) {
       try {
-        const response = await fetch("http://localhost:8080/src/bed_api.php", {
+        const response = await fetch(url, {
           mode: "cors",
           method: "POST",
           credentials: "include", // 若需要 cookie / Basic Auth

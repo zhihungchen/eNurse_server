@@ -73,7 +73,7 @@ switch ($action) {
                             error_log("找到符合条件的记录，ID 为：{$id}");
                         }
                     }
-                    else if ($item[KEY_STATUS] === 'complete' || $item[KEY_STATUS] === 'COMPLETE') {
+                    else if ($item[KEY_STATUS] === 'complete' || $item[KEY_STATUS] === 'COMPLETE' || $item[KEY_STATUS] === 'failed' || $item[KEY_STATUS] === 'FAILED') {
                         $id = recordExistsStatus($pdo, TABLE_ENURSE_BEDS, KEY_BED_ID, $bedId, KEY_STATUS, 'ongoing');
                         if ($id === -1) {
                             error_log("没有找到符合条件的记录。");

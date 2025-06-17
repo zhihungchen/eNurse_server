@@ -15,7 +15,10 @@ error_log('PHP CORS check: origin=' . ($_SERVER['HTTP_ORIGIN'] ?? 'N/A'));
 $allowed_origins = [
     'https://ntuairobo.net',
     'http://enurse-app.local:8080',
-    'http://localhost:8080'
+    'https://localhost',
+    'https://172.16.63.134', // enurse-web
+    'https://172.18.96.84', #temi
+    'https://e-nurse.ntuh.gov.tw'
     // '*' // 通配符，可根据需求移除
 ];
 
