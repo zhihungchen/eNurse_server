@@ -30,10 +30,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["db_user"])) {
     // Load DB config to verify database name & host
     $configFile = __DIR__ . "/config.json";
     $config = json_decode(file_get_contents($configFile), true);
-    $db = $config["database"];
+    // $db = $config["database"];
 
     // Try connecting with provided credentials
-    $conn = @new mysqli($db["host"], $input_user, $input_pass, $db["dbname"]);
+    $conn = @new mysqli($config["host"], $input_user, $input_pass, $config["database"]);
+
 
     if ($conn->connect_error) {
         header("Location: create_user.php?error=1");

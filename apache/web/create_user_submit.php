@@ -23,10 +23,12 @@ if (!isset($_SESSION["admin_verified"]) || $_SESSION["admin_verified"] !== true)
 // Load database configuration
 $configFile = __DIR__ . "/config.json";
 $config = json_decode(file_get_contents($configFile), true);
-$db = $config["database"];
+// $db = $config["database"];
 
-// Connect to the database
-$conn = new mysqli($db["host"], $_SESSION["admin_user"], $_SESSION["admin_pass"], $db["dbname"]);
+// Connect to the database using session credentials
+$admin_user = $_SESSION["admin_user"];
+$admin_pass = $_SESSION["admin_pass"];
+$conn = @new mysqli($config["host"], $admin_user, $admin_pass, $config["database"]);
 if ($conn->connect_error) {
     die("❌ Database connection failed: " . $conn->connect_error);
 }
@@ -64,7 +66,7 @@ if ($count > 0) {
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
 // Insert the new user into the database
-$stmt = $conn->prepare("INSERT INTO users (username, password_hash, role, name) VALUES (?, ?, ?, ?)");
+$stmt = $conn->prepare("INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)");
 $stmt->bind_param("ssss", $username, $password_hash, $role, $name);
 
 if ($stmt->execute()) {

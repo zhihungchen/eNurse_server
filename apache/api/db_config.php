@@ -7,6 +7,7 @@
  */
 
 // 数据库连接参数：环境变量或默认值
+// $dbHost    = getenv('DB_HOST')    ?: 'mysql';
 $dbHost    = getenv('DB_HOST')    ?: 'localhost';
 $dbPort    = getenv('DB_PORT')    ?: '3306';
 $dbName    = getenv('DB_NAME')    ?: 'enurse';

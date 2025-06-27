@@ -13,9 +13,9 @@ if (!$config || !isset($config["database"])) {
     die("Invalid config.json format");
 }
 
-// Connect to MySQL
-$db = $config["database"];
-$conn = new mysqli($db["host"], $db["username"], $db["password"], $db["dbname"]);
+// Connect to MySQL using config user credentials
+// $db = $config["database"];
+$conn = @new mysqli($config["host"], $config["user"], $config["password"], $config["database"]);
 if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
 }
@@ -31,7 +31,7 @@ if (!$username || !$password || !$role) {
 }
 
 // Query user with matching role
-$stmt = $conn->prepare("SELECT id, username, password_hash, role FROM users WHERE username = ? AND role = ?");
+$stmt = $conn->prepare("SELECT id, username, password, role FROM users WHERE username = ? AND role = ?");
 $stmt->bind_param("ss", $username, $role);
 $stmt->execute();
 $stmt->store_result();
