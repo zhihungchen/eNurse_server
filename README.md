@@ -1,9 +1,11 @@
 # eNurse Server System
 
+![eNurse Server Deployment in Hospital](eNurse_server.png)
+
 ## What is eNurse?
 eNurse is a robotics project integrating Natural Language Processing (NLP) and Human-Robot Interaction (HRI) technologies. Its goal is to build an intelligent nurse assistant that supports healthcare professionals by enabling patient interaction, data management, and task automation through robots like Temi.
 
-## Why we build this repo?
+## Server System for eNurse
 To enable various services in hospital environments using the Temi robot, a structured and scalable server architecture is essential. This repository provides an extensible foundation for deploying and managing those services.
 
 ---
@@ -12,7 +14,7 @@ To enable various services in hospital environments using the Temi robot, a stru
 
 ```bash
 git clone https://github.com/XXX
-cd temi_ws
+cd eNurse_Server
 ```
 
 ---
