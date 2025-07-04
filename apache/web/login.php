@@ -31,7 +31,7 @@ if (!$username || !$password || !$role) {
 }
 
 // Query user with matching role
-$stmt = $conn->prepare("SELECT id, username, password, role FROM users WHERE username = ? AND role = ?");
+$stmt = $conn->prepare("SELECT id, username, password_hash, role FROM table_enurse_users WHERE username = ? AND role = ?");
 $stmt->bind_param("ss", $username, $role);
 $stmt->execute();
 $stmt->store_result();
@@ -53,6 +53,6 @@ if ($stmt->num_rows > 0) {
     }
 }
 
-header("Location: login.html?error=1");
+header("Location: login.html?error=" . urlencode("Invalid username, password, or role. Please try again."));
 exit;
 ?>

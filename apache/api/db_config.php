@@ -7,8 +7,8 @@
  */
 
 // 数据库连接参数：环境变量或默认值
-// $dbHost    = getenv('DB_HOST')    ?: 'mysql';
-$dbHost    = getenv('DB_HOST')    ?: 'localhost';
+ $dbHost    = getenv('DB_HOST')    ?: 'mysql'; //for beto local environment
+//$dbHost    = getenv('DB_HOST')    ?: 'localhost'; //for lab-setup environment
 $dbPort    = getenv('DB_PORT')    ?: '3306';
 $dbName    = getenv('DB_NAME')    ?: 'enurse';
 $dbUser    = getenv('DB_USER')    ?: 'robot';

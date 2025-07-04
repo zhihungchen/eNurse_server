@@ -7,7 +7,7 @@
  * Responsibilities:
  * - Receives username, password, name, and role via POST.
  * - Hashes the password using password_hash().
- * - Inserts the new user into the 'users' table using the admin's MySQL credentials stored in session.
+ * - Inserts the new user into the 'table_enurse_users' table using the admin's MySQL credentials stored in session.
  * 
  * Requirements:
  * - This script should only be accessed after admin authentication (via create_user.php).
@@ -51,7 +51,7 @@ if (!in_array($role, $allowed_roles)) {
 }
 
 // Check if username already exists
-$stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+$stmt = $conn->prepare("SELECT COUNT(*) FROM table_enurse_users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $stmt->bind_result($count);
@@ -66,7 +66,7 @@ if ($count > 0) {
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
 // Insert the new user into the database
-$stmt = $conn->prepare("INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)");
+$stmt = $conn->prepare("INSERT INTO table_enurse_users (username, password_hash, role, name) VALUES (?, ?, ?, ?)");
 $stmt->bind_param("ssss", $username, $password_hash, $role, $name);
 
 if ($stmt->execute()) {

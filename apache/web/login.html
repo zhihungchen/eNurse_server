@@ -107,11 +107,23 @@
             <button type="submit">Login</button>
         </form>
 
+        <p id="error-msg" class="error" style="display:none; color: red; font-weight: bold;"></p>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    if (error) {
+        const errorEl = document.getElementById("error-msg");
+        errorEl.textContent = decodeURIComponent(error);
+        errorEl.style.display = "block";
+
+        // delete ?error= from url after 2s
+        history.replaceState({}, document.title, location.pathname);
+    }
+</script>
+
         <p>Don't have an account? <a href="create_user.php">Create one here</a>.</p>
 
-        <?php if (isset($_GET['error']) && $_GET['error'] == 1): ?>
-        <p class="error">Invalid username, password, or role. Please try again.</p>
-        <?php endif; ?>
     </div>
 </body>
 
